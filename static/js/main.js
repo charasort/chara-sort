@@ -552,3 +552,5 @@ function generateTextList() {
   const oWindow = window.open("", "", "height=640,width=480");
   oWindow.document.write(data);
 }
+
+window.onload = init;
