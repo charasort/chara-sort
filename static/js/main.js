@@ -247,3 +247,284 @@ function start() {
     display();
   });
 }
+
+/** Displays the current state of the sorter. */
+function display() {
+  const percent         = Math.floor(sortedNo * 100 / totalBattles);
+  const leftCharIndex   = sortedIndexList[leftIndex][leftInnerIndex];
+  const rightCharIndex  = sortedIndexList[rightIndex][rightInnerIndex];
+  const leftChar        = characterDataToSort[leftCharIndex];
+  const rightChar       = characterDataToSort[rightCharIndex];
+
+  const charNameDisp = name => {
+    const charName = reduceTextWidth(name, 'Arial 12.8px', 220);
+    const charTooltip = name !== charName ? name : '';
+    return `<p title="${charTooltip}">${charName}</p>`;
+  };
+
+  progressBar(`Battle No. ${battleNo}`, percent);
+
+  document.querySelector('.left.sort.image').src = leftChar.img;
+  document.querySelector('.right.sort.image').src = rightChar.img;
+
+  
+
+  document.querySelector('.left.sort.text').innerHTML = charNameDisp(leftChar.name);
+  document.querySelector('.right.sort.text').innerHTML = charNameDisp(rightChar.name);
+
+  /** Autopick if choice has been given. */
+  if (choices.length !== battleNo - 1) {
+    switch (Number(choices[battleNo - 1])) {
+      case 0: pick('left'); break;
+      case 1: pick('right'); break;
+      case 2: pick('tie'); break;
+      default: break;
+    }
+  } else { saveProgress('Autosave'); }
+}
+
+/**
+ * Sort between two character choices or tie.
+ * 
+ * @param {'left'|'right'|'tie'} sortType
+ */
+function pick(sortType) {
+  if ((timeTaken && choices.length === battleNo - 1) || loading) { return; }
+  else if (!timestamp) { return start(); }
+
+  sortedIndexListPrev = sortedIndexList.slice(0);
+  recordDataListPrev  = recordDataList.slice(0);
+  parentIndexListPrev = parentIndexList.slice(0);
+  tiedDataListPrev    = tiedDataList.slice(0);
+
+  leftIndexPrev       = leftIndex;
+  leftInnerIndexPrev  = leftInnerIndex;
+  rightIndexPrev      = rightIndex;
+  rightInnerIndexPrev = rightInnerIndex;
+  battleNoPrev        = battleNo;
+  sortedNoPrev        = sortedNo;
+  pointerPrev         = pointer;
+
+  /** 
+   * For picking 'left' or 'right':
+   * 
+   * Input the selected character's index into recordDataList. Increment the pointer of
+   * recordDataList. Then, check if there are any ties with this character, and keep
+   * incrementing until we find no more ties. 
+   */
+  switch (sortType) {
+    case 'left': {
+      if (choices.length === battleNo - 1) { choices += '0'; }
+      recordData('left');
+      while (tiedDataList[recordDataList[pointer - 1]] != -1) {
+        recordData('left');
+      }
+      break;
+    }
+    case 'right': {
+      if (choices.length === battleNo - 1) { choices += '1'; }
+      recordData('right');
+      while (tiedDataList[recordDataList [pointer - 1]] != -1) {
+        recordData('right');
+      }
+      break;
+    }
+
+  /** 
+   * For picking 'tie' (i.e. heretics):
+   * 
+   * Proceed as if we picked the 'left' character. Then, we record the right character's
+   * index value into the list of ties (at the left character's index) and then proceed
+   * as if we picked the 'right' character.
+   */
+    case 'tie': {
+      if (choices.length === battleNo - 1) { choices += '2'; }
+      recordData('left');
+      while (tiedDataList[recordDataList[pointer - 1]] != -1) {
+        recordData('left');
+      }
+      tiedDataList[recordDataList[pointer - 1]] = sortedIndexList[rightIndex][rightInnerIndex];
+      recordData('right');
+      while (tiedDataList[recordDataList [pointer - 1]] != -1) {
+        recordData('right');
+      }
+      break;
+    }
+    default: return;
+  }
+
+  /**
+   * Once we reach the limit of the 'right' character list, we 
+   * insert all of the 'left' characters into the record, or vice versa.
+   */
+  const leftListLen = sortedIndexList[leftIndex].length;
+  const rightListLen = sortedIndexList[rightIndex].length;
+
+  if (leftInnerIndex < leftListLen && rightInnerIndex === rightListLen) {
+    while (leftInnerIndex < leftListLen) {
+      recordData('left');
+    }
+  } else if (leftInnerIndex === leftListLen && rightInnerIndex < rightListLen) {
+    while (rightInnerIndex < rightListLen) {
+      recordData('right');
+    }
+  }
+
+  /**
+   * Once we reach the end of both 'left' and 'right' character lists, we can remove 
+   * the arrays from the initial mergesort array, since they are now recorded. This
+   * record is a sorted version of both lists, so we can replace their original 
+   * (unsorted) parent with a sorted version. Purge the record afterwards.
+   */
+  if (leftInnerIndex === leftListLen && rightInnerIndex === rightListLen) {
+    for (let i = 0; i < leftListLen + rightListLen; i++) {
+      sortedIndexList[parentIndexList[leftIndex]][i] = recordDataList[i];
+    }
+    sortedIndexList.pop();
+    sortedIndexList.pop();
+    leftIndex = leftIndex - 2;
+    rightIndex = rightIndex - 2;
+    leftInnerIndex = 0;
+    rightInnerIndex = 0;
+
+    sortedIndexList.forEach((val, idx) => recordDataList[idx] = 0);
+    pointer = 0;
+  }
+
+  /**
+   * If, after shifting the 'left' index on the sorted list, we reach past the beginning
+   * of the sorted array, that means the entire array is now sorted. The original unsorted
+   * array in index 0 is now replaced with a sorted version, and we will now output this.
+   */
+  if (leftIndex < 0) {
+    timeTaken = timeTaken || new Date().getTime() - timestamp;
+
+    progressBar(`Battle No. ${battleNo} - Completed!`, 100);
+
+    result();
+  } else {
+    battleNo++;
+    display();
+  }
+}
+
+/**
+ * Records data in recordDataList.
+ * 
+ * @param {'left'|'right'} sortType Record from the left or the right character array.
+ */
+function recordData(sortType) {
+  if (sortType === 'left') {
+    recordDataList[pointer] = sortedIndexList[leftIndex][leftInnerIndex];
+    leftInnerIndex++;
+  } else {
+    recordDataList[pointer] = sortedIndexList[rightIndex][rightInnerIndex];
+    rightInnerIndex++;
+  }
+  
+  pointer++;
+  sortedNo++;
+}
+
+/**
+ * Modifies the progress bar.
+ * 
+ * @param {string} indicator
+ * @param {number} percentage
+ */
+function progressBar(indicator, percentage) {
+  document.querySelector('.progressbattle').innerHTML = indicator;
+  document.querySelector('.progressfill').style.width = `${percentage}%`;
+  document.querySelector('.progresstext').innerHTML = `${percentage}%`;
+}
+
+/**
+ * Shows the result of the sorter.
+ * 
+ * @param {number} [imageNum=3] Number of images to display. Defaults to 3.
+ */
+function result(imageNum = 3) {
+  document.querySelectorAll('.finished.button').forEach(el => el.style.display = 'block');
+  document.querySelector('.image.selector').style.display = 'block';
+  document.querySelector('.time.taken').style.display = 'block';
+  
+  document.querySelectorAll('.sorting.button').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.sort.text').forEach(el => el.style.display = 'none');
+  document.querySelector('.options').style.display = 'none';
+  document.querySelector('.info').style.display = 'none';
+
+  const header = '<div class="result head"><div class="left">Order</div><div class="right">Name</div></div>';
+  const timeStr = `This sorter was completed on ${new Date(timestamp + timeTaken).toString()} and took ${msToReadableTime(timeTaken)}. <a href="${location.protocol}//${sorterURL}">Do another sorter?</a>`;
+  const imgRes = (char, num) => {
+    const charName = reduceTextWidth(char.name, 'Arial 12px', 160);
+    const charTooltip = char.name !== charName ? char.name : '';
+    return `<div class="result image"><div class="left"><span>${num}</span></div><div class="right"><img src="${char.img}"><div><span title="${charTooltip}">${charName}</span></div></div></div>`;
+  }
+  const res = (char, num) => {
+    const charName = reduceTextWidth(char.name, 'Arial 12px', 160);
+    const charTooltip = char.name !== charName ? char.name : '';
+    return `<div class="result"><div class="left">${num}</div><div class="right"><span title="${charTooltip}">${charName}</span></div></div>`;
+  }
+
+  let rankNum       = 1;
+  let tiedRankNum   = 1;
+  let imageDisplay  = imageNum;
+
+  const finalSortedIndexes = sortedIndexList[0].slice(0);
+  const resultTable = document.querySelector('.results');
+  const timeElem = document.querySelector('.time.taken');
+
+  resultTable.innerHTML = header;
+  timeElem.innerHTML = timeStr;
+
+  characterDataToSort.forEach((val, idx) => {
+    const characterIndex = finalSortedIndexes[idx];
+    const character = characterDataToSort[characterIndex];
+    if (imageDisplay-- > 0) {
+      resultTable.insertAdjacentHTML('beforeend', imgRes(character, rankNum));
+    } else {
+      resultTable.insertAdjacentHTML('beforeend', res(character, rankNum));
+    }
+    finalCharacters.push({ rank: rankNum, name: character.name });
+
+    if (idx < characterDataToSort.length - 1) {
+      if (tiedDataList[characterIndex] === finalSortedIndexes[idx + 1]) {
+        tiedRankNum++;            // Indicates how many people are tied at the same rank.
+      } else {
+        rankNum += tiedRankNum;   // Add it to the actual ranking, then reset it.
+        tiedRankNum = 1;          // The default value is 1, so it increments as normal if no ties.
+      }
+    }
+  });
+}
+
+/** Undo previous choice. */
+function undo() {
+  if (timeTaken) { return; }
+
+  choices = battleNo === battleNoPrev ? choices : choices.slice(0, -1);
+
+  sortedIndexList = sortedIndexListPrev.slice(0);
+  recordDataList  = recordDataListPrev.slice(0);
+  parentIndexList = parentIndexListPrev.slice(0);
+  tiedDataList    = tiedDataListPrev.slice(0);
+
+  leftIndex       = leftIndexPrev;
+  leftInnerIndex  = leftInnerIndexPrev;
+  rightIndex      = rightIndexPrev;
+  rightInnerIndex = rightInnerIndexPrev;
+  battleNo        = battleNoPrev;
+  sortedNo        = sortedNoPrev;
+  pointer         = pointerPrev;
+
+  display();
+}
+
+function generateTextList() {
+  const data = finalCharacters.reduce((str, char) => {
+    str += `${char.rank}. ${char.name}<br>`;
+    return str;
+  }, '');
+  const oWindow = window.open("", "", "height=640,width=480");
+  oWindow.document.write(data);
+}
