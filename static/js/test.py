@@ -17,7 +17,13 @@ def getCharacterInfo():
     character = []
     for i in range(7):
         newThumb = characterInfo[i]["thumbnail"].split("revision")
-        newDict = {"name": characterInfo[i]["title"], "img": newThumb[0]}
+        site = characterInfo[i]["site_name"]
+        site = site[:-5]
+        newDict = {
+            "name": characterInfo[i]["title"],
+            "img": newThumb[0],
+            "options": site,
+        }
         character.append(newDict)
 
     with open("2021-03-31.js", "w+") as outfile:
