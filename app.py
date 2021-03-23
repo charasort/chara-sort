@@ -7,8 +7,12 @@ app = Flask(__name__)
 @app.route("/")
 def getCharacterInfo():
     # query = request.args["search"]
-    path = "https://gameofthrones.fandom.com/wikia.php?format=json&controller=MercuryApi&method=getPage&title=Category:Individuals"
+    path = "https://{showname}.fandom.com/wikia.php?format=json&controller=MercuryApi&method=getPage&title=Category:Individuals"
     characterInfo = requests.get(path).json()
+    if characterInfo.status_code == 404:
+        path = "https://{showname}.fandom.com/wikia.php?format=json&controller=MercuryApi&method=getPage&title=Category:Characters"
+        characterInfo = requests.get(path).json()
+
     characterInfo = characterInfo["data"]["nsSpecificContent"]["trendingPages"]
     character = []
     for i in range(7):
