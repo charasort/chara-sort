@@ -21,7 +21,7 @@ body {
   width: 492px;
   border: 1px solid black;
   padding: 3px;
-  margin: 2px 0px;
+  margin: 2px;
 }
 
 .progresstext {
@@ -41,9 +41,9 @@ body {
 .sorter {
   margin: 0px auto;
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
+  grid-template-columns: 240px 1fr 240px;
   grid-gap: 5px;
-  width: 420px;
+  width: 700px;
 }
 
 .button {
@@ -111,11 +111,12 @@ body {
 }
 
 .sorter > .image {
-  width: 120px;
-  height: 180px;
+  width: 240px;
+  height: 360px;
   margin: auto;
   grid-row: 1 / 7;
   cursor: pointer;
+  box-shadow: 0 0 15px rgba(10, 10, 10, 0.3);
 }
 
 .sorter > .text {
