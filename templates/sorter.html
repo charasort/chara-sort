@@ -1,11 +1,11 @@
-<!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="utf-8">
     <title>Chara Battle</title>
     <!---FAVICON--->
     <link rel="icon" type="image/png" href="../static/src/favicon.png">
-    
+
     <!---FONTS--->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital@1&family=Chivo:wght@900&display=swap" rel="stylesheet">
@@ -16,63 +16,63 @@
     <!---AOS--->
     <link href="https://unpkg.com/aos@next/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-  
+
     <!--SORTER STYLES-->
     <link rel="stylesheet" type="text/css" href="../static/css/style.css">
-    <!---SORTER JS--->
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+
+    <!--SORTER SCRIPTS-->
     <script src="../static/js/data.js"></script>
-      
+    <script src="../static/js/data/2021-03-31.js"></script>
+
     <script src="../static/js/html2canvas.min.js"></script>
+    <script src="../static/js/lz-string.min.js"></script>
     <script src="../static/js/seedrandom.min.js"></script>
     <script src="../static/js/main.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js">
-    </script>
+  </head>
 
-    </head>
+  <body>
+    <div class="container">
 
-    <body>
-      <main>
-
-        <div class="container">
-
-          <div class="progress">
-              <span class="progressbattle"></span>
-              <div class="progressbar">
-                  <div class="progressfill"><span class="progresstext"></span></div>
-              </div>
-          </div>
-      
-          <div class="sorter">
-              <img src="src/assets/defaultL.jpg" class="left sort image">
-      
-              <div class="starting start button">Touhou Project Character Sorter<br><br>Click to Start!</div>
-              <div class="starting load button">Load <span></span></div>
-      
-              <div class="loading button"><div></div><span>Loading...</span></div>
-      
-              <div class="sorting tie button">Tie</div>
-              <div class="sorting undo button">Undo</div>
-              <div class="sorting save button">Save Progress</div>
-      
-              <div class="finished save button">Generate Result URL</div>
-              <div class="finished getimg button">Generate Image</div>
-              <div class="finished list button">Generate Text List</div>
-      
-              <img src="src/assets/defaultR.jpg" class="right sort image">
-      
-              <div class="left sort text"><p></p></div>
-              <div class="right sort text"><p></p></div>
-          </div>
-      
-          <div class="options"></div>
-          <div class="image selector">Display Images on Result: </div>
-          <div class="time taken"></div>
-          <div class="results"></div>
-
+        <div class="progress">
+            <span class="progressbattle"></span>
+            <div class="progressbar">
+                <div class="progressfill"><span class="progresstext"></span></div>
+            </div>
         </div>
 
-      </main>
-    </body>
+        <div class="sorter">
+            <img src="../static/src/favicon.png" class="left sort image">
 
+            <div class="starting start button">Chara Battle<br><br>Click to Start!</div>
+            <div class="starting load button">Load <span></span></div>
+
+            <div class="loading button"><div></div><span>Loading...</span></div>
+
+            <div class="sorting tie button">Tie</div>
+            <div class="sorting undo button">Undo</div>
+            <div class="sorting save button">Save Progress</div>
+
+            <div class="finished save button">Generate Result URL</div>
+            <div class="finished getimg button">Generate Image</div>
+            <div class="finished list button">Generate Text List</div>
+
+            <img src="../static/src/favicon.png" class="right sort image">
+
+            <div class="left sort text"><p></p></div>
+            <div class="right sort text"><p></p></div>
+        </div>
+
+        <div class="options"></div>
+        <div class="image selector">Display Images on Result: </div>
+        <div class="time taken"></div>
+        <div class="results"></div>
+
+        <div class="info">
+            <a href="https://relick.me/song/">Song Sorter</a> | <a href="mailto:fera@imouto.my">Contact</a> | <a href="https://github.com/execfera/charasort/">Source Code</a> | <a href="?IwVmE4CZNAGSBs5YB8QA5zAMzoCwqzCxEmnDGVkkUXVHEON1lW0tPOn1s9suNyTGr3Y0G3QcN4SBQunNaCxC+pPLsuqreNob5MylKOtuk5RoWGlenhM63TInfyNSRS-aKuaDV+7bKjrJ8wbpClhyu1BZ6bnKG8R5m5kHOHly6gariITE2vvyRxpocZtqW8moxpZ7GGbmlmbGilZXe6j75CSGtLnbAhAxAA">Best Taste</a> | <a class="clearsave">Clear Save Data</a>
+        </div>
+        
+      </div>
+    </body>
 
 </html>
