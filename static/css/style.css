@@ -1,6 +1,9 @@
+
+
 body {
-  font-family: 'Cantarell';
   font-size: 16px;
+  background-color: #222;
+  color: whitesmoke;
 }
 
 .container {
@@ -8,6 +11,7 @@ body {
   flex-flow: column nowrap;
   align-items: center;
   margin-top: 1em;
+  font-family: 'Cantarell';
 }
 
 .progress {
@@ -19,7 +23,7 @@ body {
 .progressbar {
   position: relative;
   width: 492px;
-  border: 1px solid black;
+  border: 1px solid whitesmoke;
   padding: 3px;
   margin: 2px;
 }
@@ -47,7 +51,7 @@ body {
 }
 
 .button {
-  border: 1px solid black;
+  border: 1px solid whitesmoke;
   text-align: center;
   padding: 10%;
   grid-column: 2 / 3;
@@ -135,12 +139,12 @@ body {
 
 .sorter > .left {
   grid-column: 1 / 2;
-  border: 1px solid #000000;
+  border: 1px solid whitesmoke;
 }
 
 .sorter > .right {
   grid-column: 3 / 4;
-  border: 1px solid #000000;
+  border: 1px solid whitesmoke;
 }
 
 .options {
@@ -214,7 +218,7 @@ label:hover {
   display: grid;
   width: 211px;
   grid-template-columns: repeat(2, 1fr);
-  border: 1px solid #000;
+  border: 1px solid whitesmoke;
   margin-right: 5px;
 }
 

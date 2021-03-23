@@ -21,4 +21,4 @@ let dataSetVersion = '';
 /**
  * Image root, will be appended to the start of every image URL.
  */
- const imageRoot = 'https://static.wikia.nocookie.net/gameofthrones/images/';
+const imageRoot = 'https://i.imgur.com/';
