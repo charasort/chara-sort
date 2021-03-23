@@ -17,8 +17,5 @@ const dataSet = {};
 */
 let dataSetVersion = '';
 
-/**
- * Image root, will be appended to the start of every image URL.
- * Need to figure out how to get this to work with API
- */
-const imageRoot = '';
+
+
