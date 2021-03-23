@@ -1,3 +1,6 @@
+
+var djangoData = $('#my-data').data();
+
 /** @type {CharData} */
 let characterData       = [];   // Initial character data set used.
 /** @type {CharData} */
@@ -780,7 +783,7 @@ function preloadImages() {
   };
 
   return Promise.all(characterDataToSort.map(async (char, idx) => {
-    characterDataToSort[idx].img = await loadImage(imageRoot + char.img);
+    characterDataToSort[idx].img = await loadImage(char.img);
   }));
 }
 
