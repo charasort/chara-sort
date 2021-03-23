@@ -1,17 +1,15 @@
 
-var djangoData = $('#my-data').data();
-
 /** @type {CharData} */
 let characterData       = [];   // Initial character data set used.
 /** @type {CharData} */
 let characterDataToSort = [];   // Character data set after filtering.
-/** @type {Options} */
-let options             = [];   // Initial option set used.
+/** @type {Options} 
+let options             = [];   // Initial option set used. **/
 
 let currentVersion      = '';   // Which version of characterData and options are used.
 
-/** @type {(boolean|boolean[])[]} */
-let optTaken  = [];             // Records which options are set.
+/** @type {(boolean|boolean[])[]} 
+let optTaken  = [];             // Records which options are set. */
 
 /** Save Data. Concatenated into array, joined into string (delimited by '|') and compressed with lz-string. */
 let timestamp = 0;        // savedata[0]      (Unix time when sorter was started, used as initial PRNG seed and in dataset selection)
@@ -142,7 +140,7 @@ function start() {
   /** Copy data into sorting array to filter. */
   characterDataToSort = characterData.slice(0);
 
-  /** Check selected options and convert to boolean array form. */
+  /** Check selected options and convert to boolean array form. 
   optTaken = [];
 
   options.forEach(opt => {
@@ -158,7 +156,7 @@ function start() {
     } else { optTaken.push(document.getElementById(`cb-${opt.key}`).checked); }
   });
 
-  /** Convert boolean array form to string form. */
+  Convert boolean array form to string form.
   optStr    = '';
   suboptStr = '';
 
@@ -178,7 +176,7 @@ function start() {
     }
   });
 
-  /** Filter out deselected nested criteria and remove selected criteria. */
+  Filter out deselected nested criteria and remove selected criteria. 
   options.forEach((opt, index) => {
     if ('sub' in opt) {
       if (optTaken[index]) {
@@ -199,7 +197,7 @@ function start() {
   if (characterDataToSort.length < 2) {
     alert('Cannot sort with less than two characters. Please reselect.');
     return;
-  }
+  } */
 
   /** Shuffle character array with timestamp seed. */
   timestamp = timestamp || new Date().getTime();
@@ -648,7 +646,7 @@ function setLatestDataset() {
   populateOptions();
 }
 
-/** Populate option list. */
+/** Populate option list. 
 function populateOptions() {
   const optList = document.querySelector('.options');
   const optInsert = (name, id, tooltip, checked = true, disabled = false) => {
@@ -658,10 +656,10 @@ function populateOptions() {
     return `<div class="large option"><label title="${tooltip?tooltip:name}"><input id="cbgroup-${id}" type="checkbox" ${checked?'checked':''}> ${name}</label></div>`;
   };
 
-  /** Clear out any previous options. */
+   Clear out any previous options. 
   optList.innerHTML = '';
 
-  /** Insert sorter options and set grouped option behavior. */
+   Insert sorter options and set grouped option behavior. 
   options.forEach(opt => {
     if ('sub' in opt) {
       optList.insertAdjacentHTML('beforeend', optInsertLarge(opt.name, opt.key, opt.tooltip, opt.checked));
@@ -682,7 +680,7 @@ function populateOptions() {
       optList.insertAdjacentHTML('beforeend', optInsert(opt.name, opt.key, opt.tooltip, opt.checked));
     }
   });
-}
+}*/
 
 /**
  * Decodes compressed shareable link query string.
@@ -783,7 +781,7 @@ function preloadImages() {
   };
 
   return Promise.all(characterDataToSort.map(async (char, idx) => {
-    characterDataToSort[idx].img = await loadImage(char.img);
+    characterDataToSort[idx].img = await loadImage(imageRoot + char.img);
   }));
 }
 
