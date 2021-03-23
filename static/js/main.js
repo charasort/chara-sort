@@ -1,5 +1,14 @@
 /** @type {CharData} */
 let characterData       = [];   // Initial character data set used.
+/** @type {CharData} */
+let characterDataToSort = [];   // Character data set after filtering.
+/** @type {Options} */
+let options             = [];   // Initial option set used.
+
+let currentVersion      = '';   // Which version of characterData and options are used.
+
+/** @type {(boolean|boolean[])[]} */
+let optTaken  = [];             // Records which options are set.
 
 /** Save Data. Concatenated into array, joined into string (delimited by '|') and compressed with lz-string. */
 let timestamp = 0;        // savedata[0]      (Unix time when sorter was started, used as initial PRNG seed and in dataset selection)
@@ -108,9 +117,24 @@ function init() {
   document.querySelector('.image.selector > select').addEventListener('input', (e) => {
     const imageNum = e.target.options[e.target.selectedIndex].value;
     result(Number(imageNum));
-  });}
+  });
 
-  /** Begin sorting. */
+  /** Show load button if save data exists. */
+  if (storedSaveType) {
+    document.querySelector('.starting.load.button > span').insertAdjacentText('beforeend', storedSaveType);
+    document.querySelectorAll('.starting.button').forEach(el => {
+      el.style['grid-row'] = 'span 3';
+      el.style.display = 'block';
+    });
+  }
+
+  setLatestDataset();
+
+  /** Decode query string if available. */
+  if (window.location.search.slice(1) !== '') decodeQuery();
+}
+
+/** Begin sorting. */
 function start() {
   /** Copy data into sorting array to filter. */
   characterDataToSort = characterData.slice(0);
@@ -234,6 +258,7 @@ function start() {
   rightInnerIndex = 0;                        // to the right array, in order to merge them into one sorted array.
 
   /** Disable all checkboxes and hide/show appropriate parts while we preload the images. */
+  document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.disabled = true);
   document.querySelectorAll('.starting.button').forEach(el => el.style.display = 'none');
   document.querySelector('.loading.button').style.display = 'block';
   document.querySelector('.progress').style.display = 'block';
@@ -520,6 +545,48 @@ function undo() {
   display();
 }
 
+/** 
+ * Save progress to local browser storage.
+ * 
+ * @param {'Autosave'|'Progress'|'Last Result'} saveType
+*/
+function saveProgress(saveType) {
+  const saveData = generateSavedata();
+
+  localStorage.setItem(`${sorterURL}_saveData`, saveData);
+  localStorage.setItem(`${sorterURL}_saveType`, saveType);
+
+  if (saveType !== 'Autosave') {
+    const saveURL = `${location.protocol}//${sorterURL}?${saveData}`;
+    const inProgressText = 'You may click Load Progress after this to resume, or use this URL.';
+    const finishedText = 'You may use this URL to share this result, or click Load Last Result to view it again.';
+
+    window.prompt(saveType === 'Last Result' ? finishedText : inProgressText, saveURL);
+  }
+}
+
+/**
+ * Load progress from local browser storage.
+*/
+function loadProgress() {
+  const saveData = localStorage.getItem(`${sorterURL}_saveData`);
+
+  if (saveData) decodeQuery(saveData);
+}
+
+/** 
+ * Clear progress from local browser storage.
+*/
+function clearProgress() {
+  storedSaveType = '';
+
+  localStorage.removeItem(`${sorterURL}_saveData`);
+  localStorage.removeItem(`${sorterURL}_saveType`);
+
+  document.querySelectorAll('.starting.start.button').forEach(el => el.style['grid-row'] = 'span 6');
+  document.querySelectorAll('.starting.load.button').forEach(el => el.style.display = 'none');
+}
+
 function generateImage() {
   const timeFinished = timestamp + timeTaken;
   const tzoffset = (new Date()).getTimezoneOffset() * 60000;
@@ -553,23 +620,217 @@ function generateTextList() {
   oWindow.document.write(data);
 }
 
-// Wrap every letter in a span
-var textWrapper = document.querySelector('.ml6 .letters');
-textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+function generateSavedata() {
+  const saveData = `${timeError?'|':''}${timestamp}|${timeTaken}|${choices}|${optStr}${suboptStr}`;
+  return LZString.compressToEncodedURIComponent(saveData);
+}
 
-anime.timeline({loop: true})
-  .add({
-    targets: '.ml6 .letter',
-    translateY: ["1.1em", 0],
-    translateZ: 0,
-    duration: 750,
-    delay: (el, i) => 50 * i
-  }).add({
-    targets: '.ml6',
-    opacity: 0,
-    duration: 1000,
-    easing: "easeOutExpo",
-    delay: 1000
+/** Retrieve latest character data and options from dataset. */
+function setLatestDataset() {
+  /** Set some defaults. */
+  timestamp = 0;
+  timeTaken = 0;
+  choices   = '';
+
+  const latestDateIndex = Object.keys(dataSet)
+    .map(date => new Date(date))
+    .reduce((latestDateIndex, currentDate, currentIndex, array) => {
+      return currentDate > array[latestDateIndex] ? currentIndex : latestDateIndex;
+    }, 0);
+  currentVersion = Object.keys(dataSet)[latestDateIndex];
+
+  characterData = dataSet[currentVersion].characterData;
+  options = dataSet[currentVersion].options;
+
+  populateOptions();
+}
+
+/** Populate option list. */
+function populateOptions() {
+  const optList = document.querySelector('.options');
+  const optInsert = (name, id, tooltip, checked = true, disabled = false) => {
+    return `<div><label title="${tooltip?tooltip:name}"><input id="cb-${id}" type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''}> ${name}</label></div>`;
+  };
+  const optInsertLarge = (name, id, tooltip, checked = true) => {
+    return `<div class="large option"><label title="${tooltip?tooltip:name}"><input id="cbgroup-${id}" type="checkbox" ${checked?'checked':''}> ${name}</label></div>`;
+  };
+
+  /** Clear out any previous options. */
+  optList.innerHTML = '';
+
+  /** Insert sorter options and set grouped option behavior. */
+  options.forEach(opt => {
+    if ('sub' in opt) {
+      optList.insertAdjacentHTML('beforeend', optInsertLarge(opt.name, opt.key, opt.tooltip, opt.checked));
+      opt.sub.forEach((subopt, subindex) => {
+        optList.insertAdjacentHTML('beforeend', optInsert(subopt.name, `${opt.key}-${subindex}`, subopt.tooltip, subopt.checked, opt.checked === false));
+      });
+      optList.insertAdjacentHTML('beforeend', '<hr>');
+
+      const groupbox = document.getElementById(`cbgroup-${opt.key}`);
+
+      groupbox.parentElement.addEventListener('click', () => {
+        opt.sub.forEach((subopt, subindex) => {
+          document.getElementById(`cb-${opt.key}-${subindex}`).disabled = !groupbox.checked;
+          if (groupbox.checked) { document.getElementById(`cb-${opt.key}-${subindex}`).checked = true; }
+        });
+      });
+    } else {
+      optList.insertAdjacentHTML('beforeend', optInsert(opt.name, opt.key, opt.tooltip, opt.checked));
+    }
   });
-  
+}
+
+/**
+ * Decodes compressed shareable link query string.
+ * @param {string} queryString
+ */
+function decodeQuery(queryString = window.location.search.slice(1)) {
+  let successfulLoad;
+
+  try {
+    /** 
+     * Retrieve data from compressed string. 
+     * @type {string[]}
+     */
+    const decoded = LZString.decompressFromEncodedURIComponent(queryString).split('|');
+    if (!decoded[0]) {
+      decoded.splice(0, 1);
+      timeError = true;
+    }
+
+    timestamp = Number(decoded.splice(0, 1)[0]);
+    timeTaken = Number(decoded.splice(0, 1)[0]);
+    choices   = decoded.splice(0, 1)[0];
+
+    const optDecoded    = decoded.splice(0, 1)[0];
+    const suboptDecoded = decoded.slice(0);
+
+    /** 
+     * Get latest data set version from before the timestamp.
+     * If timestamp is before or after any of the datasets, get the closest one.
+     * If timestamp is between any of the datasets, get the one in the past, but if timeError is set, get the one in the future.
+     */
+    const seedDate = { str: timestamp, val: new Date(timestamp) };
+    const dateMap = Object.keys(dataSet)
+      .map(date => {
+        return { str: date, val: new Date(date) };
+      })
+    const beforeDateIndex = dateMap
+      .reduce((prevIndex, currDate, currIndex) => {
+        return currDate.val < seedDate.val ? currIndex : prevIndex;
+      }, -1);
+    const afterDateIndex = dateMap.findIndex(date => date.val > seedDate.val);
+    
+    if (beforeDateIndex === -1) {
+      currentVersion = dateMap[afterDateIndex].str;
+    } else if (afterDateIndex === -1) {
+      currentVersion = dateMap[beforeDateIndex].str;
+    } else {
+      currentVersion = dateMap[timeError ? afterDateIndex : beforeDateIndex].str;
+    }
+
+    options = dataSet[currentVersion].options;
+    characterData = dataSet[currentVersion].characterData;
+
+    /** Populate option list and decode options selected. */
+    populateOptions();
+
+    let suboptDecodedIndex = 0;
+    options.forEach((opt, index) => {
+      if ('sub' in opt) {
+        const optIsTrue = optDecoded[index] === '1';
+        document.getElementById(`cbgroup-${opt.key}`).checked = optIsTrue;
+        opt.sub.forEach((subopt, subindex) => {
+          const subIsTrue = optIsTrue ? suboptDecoded[suboptDecodedIndex][subindex] === '1' : true;
+          document.getElementById(`cb-${opt.key}-${subindex}`).checked = subIsTrue;
+          document.getElementById(`cb-${opt.key}-${subindex}`).disabled = optIsTrue;
+        });
+        suboptDecodedIndex = suboptDecodedIndex + optIsTrue ? 1 : 0;
+      } else { document.getElementById(`cb-${opt.key}`).checked = optDecoded[index] === '1'; }
+    });
+
+    successfulLoad = true;
+  } catch (err) {
+    console.error(`Error loading shareable link: ${err}`);
+    setLatestDataset(); // Restore to default function if loading link does not work.
+  }
+
+  if (successfulLoad) { start(); }
+}
+
+/** 
+ * Preloads images in the filtered character data and converts to base64 representation.
+*/
+function preloadImages() {
+  const totalLength = characterDataToSort.length;
+  let imagesLoaded = 0;
+
+  const loadImage = async (src) => {
+    const blob = await fetch(src).then(res => res.blob());
+    return new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        progressBar(`Loading Image ${++imagesLoaded}`, Math.floor(imagesLoaded * 100 / totalLength));
+        res(ev.target.result);
+      };
+      reader.onerror = rej;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  return Promise.all(characterDataToSort.map(async (char, idx) => {
+    characterDataToSort[idx].img = await loadImage(imageRoot + char.img);
+  }));
+}
+
+/**
+ * Returns a readable time string from milliseconds.
+ * 
+ * @param {number} milliseconds
+ */
+function msToReadableTime (milliseconds) {
+  let t = Math.floor(milliseconds/1000);
+  const years = Math.floor(t / 31536000);
+  t = t - (years * 31536000);
+  const months = Math.floor(t / 2592000);
+  t = t - (months * 2592000);
+  const days = Math.floor(t / 86400);
+  t = t - (days * 86400);
+  const hours = Math.floor(t / 3600);
+  t = t - (hours * 3600);
+  const minutes = Math.floor(t / 60);
+  t = t - (minutes * 60);
+  const content = [];
+	if (years) content.push(years + " year" + (years > 1 ? "s" : ""));
+	if (months) content.push(months + " month" + (months > 1 ? "s" : ""));
+	if (days) content.push(days + " day" + (days > 1 ? "s" : ""));
+	if (hours) content.push(hours + " hour"  + (hours > 1 ? "s" : ""));
+	if (minutes) content.push(minutes + " minute" + (minutes > 1 ? "s" : ""));
+	if (t) content.push(t + " second" + (t > 1 ? "s" : ""));
+  return content.slice(0,3).join(', ');
+}
+
+/**
+ * Reduces text to a certain rendered width.
+ *
+ * @param {string} text Text to reduce.
+ * @param {string} font Font applied to text. Example "12px Arial".
+ * @param {number} width Width of desired width in px.
+ */
+function reduceTextWidth(text, font, width) {
+  const canvas = reduceTextWidth.canvas || (reduceTextWidth.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+  context.font = font;
+  if (context.measureText(text).width < width * 0.8) {
+    return text;
+  } else {
+    let reducedText = text;
+    while (context.measureText(reducedText).width + context.measureText('..').width > width * 0.8) {
+      reducedText = reducedText.slice(0, -1);
+    }
+    return reducedText + '..';
+  }
+}
+
 window.onload = init;
