@@ -3,31 +3,29 @@
   <head>
     <meta charset="utf-8">
     <title>Chara Battle</title>
-  
-  
+    <!---FAVICON--->
+    <link rel="icon" type="image/png" href="../static/src/favicon.png">
+    <!---HOMEPAGE STYLES--->
     <link rel="stylesheet" type="text/css" href="../static/css/homeStyle.css">
 
+    <!---FONTS--->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital@1&family=Chivo:wght@900&display=swap" rel="stylesheet">
 
+    <!---BOOTSTRAP--->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/darkly/bootstrap.min.css">
 
+    <!---AOS--->
     <link href="https://unpkg.com/aos@next/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     
-    
-   
-    <script src="../static/js/data.js"></script>
-  
-    <script src="../static/js/html2canvas.min.js"></script>
-    <script src="../static/js/main.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js">
-    </script>
   </head>
 
     <body>
         <main>
-            
+
+          <!----------------------VIDEO HEADER----------------------->  
+
           <header>
             <div class="overlay"></div>
             <video playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop">
@@ -49,6 +47,8 @@
             </div>
           </header>
 
+          <!---------------SEARCH------------------>
+
           <div class="container mt-5 mb-5">
             <div class="text-center align-items-center pt-5">
               <h3>Search your favorite series</h3>
@@ -60,48 +60,54 @@
             </div>
           </div>
 
+          <!------------EXAMPLE SORTERS------------>
+
           <hr>
           <h3 class="text-center text-success">Popular Sorters</h2>
 
           <div class="row">
             <div class="col-md-4 mt-5">
               <div class="card profile-card-5" data-aos="fade-up" data-aos-duration="1500">
-                <div class="card-img-block">
+                <a href="" class="card-img-block"> <!--add link for ex sorter here-->
                   <img class="card-img-top" src="https://media.discordapp.net/attachments/802376727715119164/823705053978296400/CPzko6iWwAA3Fm1.png">
-                </div>
+                </a>
                   <div class="card-body pt-0">
-                  <h5 class="card-title text-center">{{Title}}</h5>
+                  <h5 class="card-title text-center">{{Title}}</h5> <!--add ex title here-->
                 </div>
               </div>
             </div>
             <div class="col-md-4 mt-5">
               <div class="card profile-card-5" data-aos="fade-down" data-aos-duration="1500">
-                <div class="card-img-block">
+                <a href="" class="card-img-block"> <!--add link for ex sorter here-->
                   <img class="card-img-top" src="https://media.discordapp.net/attachments/802376727715119164/823705053978296400/CPzko6iWwAA3Fm1.png">
-                </div>
+                </a>
                   <div class="card-body pt-0">
-                  <h5 class="card-title text-center">{{Title}}</h5>
+                  <h5 class="card-title text-center">{{Title}}</h5> <!--add ex title here-->
                 </div>
               </div>
             </div>
             <div class="col-md-4 mt-5">
               <div class="card profile-card-5" data-aos="fade-up" data-aos-duration="1500">
-                <div class="card-img-block">
+                <a href="" class="card-img-block"> <!--add link for ex sorter here-->
                   <img class="card-img-top" src="https://media.discordapp.net/attachments/802376727715119164/823705053978296400/CPzko6iWwAA3Fm1.png">
-                </div>
+                </a>
                   <div class="card-body pt-0">
-                  <h5 class="card-title text-center">{{Title}}</h5>
+                  <h5 class="card-title text-center">{{Title}}</h5> <!--add ex title here-->
                 </div>
               </div>
             </div>
           </div>
+
+          <!------------------FOOTER------------------->
           
            
         </main>
 
+      <!---AOS INIT--->
       <script>
         AOS.init();
       </script>
       
     </body>
+
 </html>
