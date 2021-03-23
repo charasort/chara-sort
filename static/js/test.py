@@ -21,7 +21,7 @@ def getCharacterInfo():
         site = site[:-5]
         newDict = {
             "name": characterInfo[i]["title"],
-            "img": newThumb[0],
+            "img": characterInfo[i]["thumbnail"],
             "options": site,
         }
         character.append(newDict)

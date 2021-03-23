@@ -1,5 +1,46 @@
 dataSetVersion = "2021-03-31"; // Change this when creating a new data set version. YYYY-MM-DD format.
 dataSet[dataSetVersion] = {};
 
+dataSet[dataSetVersion].options = [
+  {
+    name: "Filter by Series Entry",
+    key: "series",
+    tooltip: "Check this to restrict to certain series.",
+    checked: false,
+    sub: [
+      { name: "Books", key: "book" },
+    ]
+  }
+];
+
+
 dataSet[dataSetVersion].characterData = [
-  {"name": "Jon Snow", "img": "https://static.wikia.nocookie.net/gameofthrones/images/d/d0/JonSnow8x06.PNG/", "options": "Game of Thrones"}, {"name": "Daenerys Targaryen", "img": "https://static.wikia.nocookie.net/gameofthrones/images/4/4f/Daenerys_Season_8.jpg/", "options": "Game of Thrones"}, {"name": "Rhaegar Targaryen", "img": "https://static.wikia.nocookie.net/gameofthrones/images/5/51/Rhaeger_main_infobox.png/", "options": "Game of Thrones"}, {"name": "Sansa Stark", "img": "https://static.wikia.nocookie.net/gameofthrones/images/6/63/QueenSansa.PNG/", "options": "Game of Thrones"}, {"name": "Arya Stark", "img": "https://static.wikia.nocookie.net/gameofthrones/images/b/be/AryaShipIronThrone.PNG/", "options": "Game of Thrones"}, {"name": "Ramsay Bolton", "img": "https://static.wikia.nocookie.net/gameofthrones/images/d/d2/Ramsay_S06E09_RESZIED_FOR_INFOBOX.jpg/", "options": "Game of Thrones"}, {"name": "Theon Greyjoy", "img": "https://static.wikia.nocookie.net/gameofthrones/images/7/78/TheonS8E1.PNG/", "options": "Game of Thrones"}]
+    {   img: 'Whzl0VK.png',
+        name: 'Jon Snow',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'Qk4zwx1.png',
+        name: 'Daenerys Targaryen',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'hFfj6Yf.png',
+        name: 'Rhaegar Targaryen',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'wz309Pv.png',
+        name: 'Sansa Stark',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'aoy6mma.png',
+        name: 'Arya Stark',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'ELhNjUr.png',
+        name: 'Ramsay Bolton',
+        opts: { "series": ["book"],
+        stage: ["st4"]}},
+    {   img: 'Q2kKXdu.png',
+        name: 'Theon Greyjoy',
+        opts: { "series": ["book"],
+        stage: ["st4"]}}
+]
